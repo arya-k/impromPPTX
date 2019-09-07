@@ -1,7 +1,7 @@
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 import json
-from data.main_function import gen_element
+import requests
 
 
 class PresentationConsumer(WebsocketConsumer):
@@ -36,8 +36,5 @@ class PresentationConsumer(WebsocketConsumer):
         data = event['message']
         if data['page_type'] == self.page_type:
             return
-        text = data['text']
-        print(text)
-        el = gen_element(text, data['event'] == 'next_slide')
-        print(el)
-        self.send(json.dumps({'update': el.json()}))
+        req = requests.post('http://127.0.0.1:8000/get_element/', data=data)
+        self.send(json.dumps({'update': req.json()}))

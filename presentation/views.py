@@ -4,6 +4,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView as AuthLoginView, LogoutView as AuthLogoutView
 from django.contrib import messages
+from data.main_function import gen_element
+from django.http import JsonResponse
 
 
 class RegistrationView(View):
@@ -43,3 +45,8 @@ class ClickerView(LoginRequiredMixin, View):
 class PresentView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         return render(request, 'present.html')
+
+
+class GetElementView(View):
+    def post(self, request, *args, **kwargs):
+        return JsonResponse(gen_element(request.POST['text'], request.POST['event'] == 'next_slide').json())
