@@ -9,21 +9,16 @@ __email__ = "thearyaskumar@gmail.com"
 __date__ = "09/07/19"
 
 import json
-import os
-import spacy
-import fasttext
 import urllib.request
 from time import time
 from bs4 import BeautifulSoup
-from collections import deque
-from deepsegment import DeepSegment
 from django.conf import settings
 
 # load things:
 VALID_CHARS = settings.VALID_CHARS
-nlp = settings.nlp
-model = settings.model
-segmenter = settings.segmenter
+nlp = settings.NLP
+model = settings.MODEL
+segmenter = settings.SEGMENTER
 
 ########################
 # Function definitions #
@@ -131,7 +126,6 @@ class Summary:
         phrases = []
         while roots:
             root = roots.pop()
-            broken = False
             phrase, processed_verbs = build_phrase(root)
             if phrase != -1:
                 if phrase:
