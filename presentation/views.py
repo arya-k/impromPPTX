@@ -50,6 +50,5 @@ class PresentView(LoginRequiredMixin, View):
 
 
 class GetElementView(View):
-    @method_decorator(csrf_exempt)
-    def post(self, request, *args, **kwargs):
-        return JsonResponse(gen_element(request.POST['text'], request.POST['event'] == 'next_slide').json())
+    def get(self, request, *args, **kwargs):
+        return JsonResponse(gen_element(request.GET['text'], request.GET['event'] == 'next_slide').json())
