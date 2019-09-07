@@ -33,4 +33,5 @@ class PresentationConsumer(WebsocketConsumer):
     def handle_message(self, event):
         data = event['message']
         # text = data['text']
+        # data['event'] in {'next_slide', 'next_element'} == True
         self.send(json.dumps({'for': 'presenter', 'update': data}))
