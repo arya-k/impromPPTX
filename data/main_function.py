@@ -20,6 +20,7 @@ from deepsegment import DeepSegment
 VALID_CHARS = set("abcdefghijklmnopqrstuvwxyz123456789.?! ")
 nlp = spacy.load("en_core_web_sm")
 model = fasttext.load_model("model_1000000.ftz")
+segmenter = DeepSegment("en")
 
 ########################
 # Function definitions #
@@ -162,7 +163,6 @@ def get_keyphrase(rawtext, OPTIMAL_LENGTH=2.9):
 def gen_element(speech, slide_is_blank=False):
     """ Process the speech and generate the relevant element. """
     # first, split the text into multiple sentences if possible:
-    segmenter = DeepSegment("en")
     sentenced = ". ".join(segmenter.segment(speech))
     preprocessed_speech = "".join(c for c in text.lower() if c in VALID_CHARS)
 
