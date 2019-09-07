@@ -6,6 +6,8 @@ from django.contrib.auth.views import LoginView as AuthLoginView, LogoutView as 
 from django.contrib import messages
 from data.main_function import gen_element
 from django.http import JsonResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 
 class RegistrationView(View):
@@ -48,5 +50,6 @@ class PresentView(LoginRequiredMixin, View):
 
 
 class GetElementView(View):
+    @method_decorator(csrf_exempt)
     def post(self, request, *args, **kwargs):
         return JsonResponse(gen_element(request.POST['text'], request.POST['event'] == 'next_slide').json())
