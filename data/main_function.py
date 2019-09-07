@@ -14,10 +14,16 @@ import fasttext
 import urllib.request
 from time import time
 from bs4 import BeautifulSoup
+from collections import deque
 
 # load things:
 VALID_CHARS = set("abcdefghijklmnopqrstuvwxyz123456789.?! ")
-nlp = spacy.load("en_core_web_sm")
+nlp = spacy.load("en_core_web_md")
+merge_ncs = nlp.create_pipe("merge_noun_chunks")
+merge_ents = nlp.create_pipe("merge_entities")
+nlp.add_pipe(merge_ents)
+nlp.add_pipe(merge_ncs)
+
 model = fasttext.load_model("model_100000.ftz")
 
 ########################
@@ -159,6 +165,55 @@ def get_keyphrase(rawtext, OPTIMAL_LENGTH=2.9):
             candidate = phrase
     return " ".join(map(str, candidate))
 
+def kill_details(rawtext):
+    doc = nlp(rawtext)
+
+    roots = sorted(
+                filter(lambda t: t.pos_ == "VERB", doc), 
+                key=lambda t: len(list(t.children))
+            )
+    already_covered = frozenset()
+
+    def build_phrase(root):
+        phrase = []
+        processed_verbs = frozenset([root])
+        added = False
+        for child in root.children:
+            if child in already_covered:
+                return -1, -1
+            if child.i > root.i and not added:
+                phrase.append(root)
+                added = True
+            if child.pos_ in ("VERB", "ADP"):
+                phrase_segment, new_processed_verbs = build_phrase(child)
+                if phrase_segment == -1:
+                    return -1, -1
+                phrase.extend(phrase_segment)
+                processed_verbs |= new_processed_verbs
+            elif (
+                child.pos_ not in ("PART", "INTJ", "DET")
+                and (child.pos_ != "ADV" or child.text in ("never", "not"))
+            ):
+                phrase.append(child)
+        if not added:
+            phrase.append(root)
+        if len(phrase) <= 1:
+            phrase = []
+        return phrase, processed_verbs
+
+    phrases = []
+    while roots:
+        root = roots.pop()
+        broken = False
+        phrase, processed_verbs = build_phrase(root)
+        if phrase != -1:
+            if phrase:
+                phrases.append(phrase)
+            already_covered |= processed_verbs
+            roots = list(filter(lambda t: t not in processed_verbs, roots))
+
+    phrases.sort(key=lambda t: t[0].i)
+    return tuple(map(lambda xs: " ".join(map(str, xs)), phrases))
 
 def gen_element(speech, slide_is_blank=False):
     """ Process the speech and generate the relevant element. """
