@@ -4,6 +4,17 @@ import json
 import socket
 
 
+def line(s):
+    ret = ""
+    while True:
+        c = s.recv(1).decode("UTF8")
+        if c == "\n":
+            break
+        else:
+            ret += c
+    return ret
+
+
 class PresentationConsumer(WebsocketConsumer):
 
     def connect(self):
@@ -39,10 +50,6 @@ class PresentationConsumer(WebsocketConsumer):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect(("localhost", 9999))
         s.sendall(json.dumps(data).encode())
-        full_deets = []
-        deets = s.recv(1024).decode().strip()
-        while deets:
-            full_deets.append(deets)
-            deets = s.recv(1024).decode().strip()
-        the_full_deets = ''.join(full_deets)
-        self.send(json.dumps({'update': json.loads(the_full_deets)}))
+        s.send("\n".encode())
+        deets = line(s)
+        self.send(json.dumps({'update': json.loads(deets)}))
