@@ -4,6 +4,12 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView as AuthLoginView, LogoutView as AuthLogoutView
 from django.contrib import messages
+from django.http import HttpResponse
+
+import random
+import StringIO
+import numpy as np
+from matplotlib.figure import Figure, FigureCanvas
 
 
 class RegistrationView(View):
@@ -47,4 +53,33 @@ class PresentView(LoginRequiredMixin, View):
 
 class GraphView(View):
     def get(self, request, *args, **kwargs):
-        return redirect("http://cdn.pythagorasandthat.co.uk/wp-content/uploads/2014/07/quadratic-graph-1024x675.png")
+        plot_colors = ("#283593", "#2e7d32", "#a30000",
+                       "#8e0038", "#009263", "#c4782e")
+        line_colors = ("#ff3d00", "#00e676", "#2962ff",
+                       "#ff1744", "#64dd17", "#9c27b0")
+
+        num_elements = random.randint(300, 1000)
+        x_range = random.uniform(1, 10) * (10 ** random.randint(-3, 4))
+        y_range = random.uniform(1, 10) * (10 ** random.randint(-3, 4))
+
+        xs = list(np.arange(0, x_range, x_range / num_elements))
+        ys = [random.uniform(0, y_range)]
+        for t in range(num_elements - 1):
+            ys.append(ys[-1] + random.uniform(-y_range, y_range))
+
+        xs, ys = zip(*zip(xs, ys))  # in case they aren't the same length
+        z = np.polyfit(xs, ys, 3)
+        f = np.poly1d(z)
+        x_new = np.linspace(xs[0], xs[-1], 50)
+        y_new = f(x_new)
+
+        fig = Figure()
+        axis = fig.add_subplot(1, 1, 1)
+
+        axis.plot(xs, ys, "o", ms=3, color=random.choice(plot_colors))
+        axis.plot(x_new, y_new, color=random.choice(line_colors))
+
+        canvas = FigureCanvas(fig)
+        output = StringIO.StringIO()
+        canvas.print_png(output)
+        return HttpResponse(output.getvalue(), content_type="image/png")

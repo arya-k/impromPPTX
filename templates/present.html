@@ -22,7 +22,21 @@
     $(document).ready(function () {
         window.socket = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws/presentation/presenter/');
         window.socket.onmessage = function (msg) {
-            console.log(msg);
+            let deets = JSON.parse(msg.data).update;
+            switch (deets.genre) {
+                case "title":
+                    new_slide(deets.content);
+                    break;
+                case "image":
+                    add_image(deets.content);
+                    break;
+                case "summary":
+                    for (let bullet of deets.content) {
+                        add_bullet(bullet);
+                    }
+                    break;
+            }
+
         }
     })
 </script>
