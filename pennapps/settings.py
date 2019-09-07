@@ -155,5 +155,5 @@ nlp.add_pipe(merge_ents)
 nlp.add_pipe(merge_ncs)
 
 model = fasttext.load_model(os.path.join(
-    settings.BASE_DIR, "data", "model_1000000.ftz"))
+    BASE_DIR, "data", "model_1000000.ftz"))
 segmenter = DeepSegment("en")
