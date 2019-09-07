@@ -1,4 +1,5 @@
 .vscode/
+**.rdb
 **.sqlite3
 **.pyc
 **/__pycache__

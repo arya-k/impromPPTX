@@ -1,11 +1,20 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
+
+<head>
     <meta charset="utf-8">
     <title> {% block title %} ImpromPPTX {% endblock title %} </title>
+    <link rel="stylesheet" href="{% static 'present.css' %}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans&display=swap" rel="stylesheet">
     {% block css %}{% endblock css %}
-  </head>
-  <body class="bg-light">
-      {% block content %}{% endblock content %}
-  </body>
+</head>
+
+<body class="bg-light">
+    {% block content %}{% endblock content %}
+</body>
+
 </html>

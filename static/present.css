@@ -1,3 +1,6 @@
+* {
+    font-family: 'Roboto', sans-serif;
+}
 html, body {
   height: 95%;
 }
@@ -9,15 +12,13 @@ body {
 }
 
 h1 {
-  font-family: 'Roboto', sans-serif;
   font-size: 55px;
   margin: 0px;
   padding: 0px;
   padding-top: 20px;
 }
 
-ul, li {
-  font-family: 'Roboto', sans-serif;
+li {
   font-size: 28px;
   margin-bottom: 0px;
   margin-top: 0px;
