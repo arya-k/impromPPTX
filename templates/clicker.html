@@ -38,7 +38,7 @@
                 text += result[0].transcript;
             }
             window.socket.send(JSON.stringify({ page_type: 'clicker', event: 'next_slide', text: text }))
-            window.slide_recognition.stop();
+
         }
         window.element_recognition = new webkitSpeechRecognition();
         window.element_recognition.continuous = true;
@@ -48,15 +48,24 @@
                 text += result[0].transcript;
             }
             window.socket.send(JSON.stringify({ page_type: 'clicker', event: 'next_element', text: text }))
-            window.element_recognition.stop();
         }
     })
-    $("#next_slide").click(function (e) {
+    $("#next_slide").mousedown(function (e) {
+        $(this).removeClass("shadow")
         window.slide_recognition.start();
     })
+    $("#next_slide").mouseup(function (e) {
+        $(this).addClass("shadow")
+        window.slide_recognition.stop();
+    })
 
-    $("#next_element").click(function (e) {
+    $("#next_element").mousedown(function (e) {
+        $(this).removeClass("shadow")
         window.element_recognition.start();
+    })
+    $("#next_element").mouseup(function (e) {
+        $(this).addClass("shadow")
+        window.element_recognition.stop();
     })
 </script>
 {% endblock %}

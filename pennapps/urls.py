@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from presentation.views import RegistrationView, LoginView, LogoutView, PresentView, ClickerView, IndexView
+from presentation.views import RegistrationView, LoginView, LogoutView, PresentView, GraphView, ClickerView, IndexView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,4 +25,5 @@ urlpatterns = [
     path('clicker/', ClickerView.as_view(), name='clicker'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    path('graph/', GraphView.as_view(), name="graph"),
 ]

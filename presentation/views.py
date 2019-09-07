@@ -43,3 +43,8 @@ class ClickerView(LoginRequiredMixin, View):
 class PresentView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         return render(request, 'present.html')
+
+
+class GraphView(View):
+    def get(self, request, *args, **kwargs):
+        return redirect("http://cdn.pythagorasandthat.co.uk/wp-content/uploads/2014/07/quadratic-graph-1024x675.png")
