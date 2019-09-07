@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %} ImpromPPTX - Present {% endblock title %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'present.css' %}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans&display=swap" rel="stylesheet"> 
+{% endblock css %}
+
+{% block content %}
+
+<div class="presentation">
+    <div id="my-p-header" class="p-header">
+        <h1>Biggest Idea</h1>
+    </div>
+    <div id="my-p-body" class="p-body">
+        <div class="p-text">
+            <ul>
+                <li>Summary 1</li>
+                <li>Summary 2</li>
+            </ul>
+        </div>
+    </div>
+    <div class="p-images">
+
+    </div>
+</div>
+
+<script src="{% static 'present.js' %}"></script>
+      
+{% endblock content %}
