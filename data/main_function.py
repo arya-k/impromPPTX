@@ -18,7 +18,7 @@ from collections import deque
 from deepsegment import DeepSegment
 
 # load things:
-VALID_CHARS = set("abcdefghijklmnopqrstuvwxyz123456789.?! ")
+VALID_CHARS = set("abcdefghijklmnopqrstuvwxyz123456789. ")
 nlp = spacy.load("en_core_web_md")
 merge_ncs = nlp.create_pipe("merge_noun_chunks")
 merge_ents = nlp.create_pipe("merge_entities")
@@ -147,8 +147,15 @@ class Summary:
 
         phrases.sort(key=lambda t: t[0].i)
         unsanitized = [" ".join(map(str, xs)) for xs in phrases]
-        kindasanitized =  ["".join(c for c in bullet.lower() if c.isdigit() or c.isalpha() or c.isspace()) for bullet in unsanitized]
-        mostlysanitized =  [" ".join(c for c in bullet.split(" ") if c) for bullet in kindasanitized]
+        kindasanitized = [
+            "".join(
+                c for c in bullet.lower() if c.isdigit() or c.isalpha() or c.isspace()
+            )
+            for bullet in unsanitized
+        ]
+        mostlysanitized = [
+            " ".join(c for c in bullet.split(" ") if c) for bullet in kindasanitized
+        ]
         return [b.capitalize() for b in mostlysanitized]
 
     def genre(self):

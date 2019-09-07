@@ -83,7 +83,7 @@ def predict_summarize(num_examples):
         yield choice(all_sentences)
 
 
-VALID_CHARS = set("abcdefghijklmnopqrstuvwxyz123456789.?! ")
+VALID_CHARS = set("abcdefghijklmnopqrstuvwxyz123456789. ")
 
 
 def preprocess_text(text):
