@@ -101,8 +101,52 @@ class Summary:
         self._summary = self._generate_summary(rawtext)
 
     def _generate_summary(self, rawtext):
-        # TODO: Generate a summary from the larger rawtext.
-        pass
+        doc = nlp(rawtext)
+
+        roots = sorted(
+            filter(lambda t: t.pos_ == "VERB", doc), key=lambda t: len(list(t.children))
+        )
+        already_covered = frozenset()
+
+        def build_phrase(root):
+            phrase = []
+            processed_verbs = frozenset([root])
+            added = False
+            for child in root.children:
+                if child in already_covered:
+                    return -1, -1
+                if child.i > root.i and not added:
+                    phrase.append(root)
+                    added = True
+                if child.pos_ in ("VERB", "ADP"):
+                    phrase_segment, new_processed_verbs = build_phrase(child)
+                    if phrase_segment == -1:
+                        return -1, -1
+                    phrase.extend(phrase_segment)
+                    processed_verbs |= new_processed_verbs
+                elif child.pos_ not in ("PART", "INTJ", "DET") and (
+                    child.pos_ != "ADV" or child.text in ("never", "not")
+                ):
+                    phrase.append(child)
+            if not added:
+                phrase.append(root)
+            if len(phrase) <= 1:
+                phrase = []
+            return phrase, processed_verbs
+
+        phrases = []
+        while roots:
+            root = roots.pop()
+            broken = False
+            phrase, processed_verbs = build_phrase(root)
+            if phrase != -1:
+                if phrase:
+                    phrases.append(phrase)
+                already_covered |= processed_verbs
+                roots = list(filter(lambda t: t not in processed_verbs, roots))
+
+        phrases.sort(key=lambda t: t[0].i)
+        return tuple(map(lambda xs: " ".join(map(str, xs)), phrases))
 
     def genre(self):
         return "summary"
@@ -165,55 +209,6 @@ def get_keyphrase(rawtext, OPTIMAL_LENGTH=2.9):
             candidate = phrase
     return " ".join(map(str, candidate))
 
-def kill_details(rawtext):
-    doc = nlp(rawtext)
-
-    roots = sorted(
-                filter(lambda t: t.pos_ == "VERB", doc), 
-                key=lambda t: len(list(t.children))
-            )
-    already_covered = frozenset()
-
-    def build_phrase(root):
-        phrase = []
-        processed_verbs = frozenset([root])
-        added = False
-        for child in root.children:
-            if child in already_covered:
-                return -1, -1
-            if child.i > root.i and not added:
-                phrase.append(root)
-                added = True
-            if child.pos_ in ("VERB", "ADP"):
-                phrase_segment, new_processed_verbs = build_phrase(child)
-                if phrase_segment == -1:
-                    return -1, -1
-                phrase.extend(phrase_segment)
-                processed_verbs |= new_processed_verbs
-            elif (
-                child.pos_ not in ("PART", "INTJ", "DET")
-                and (child.pos_ != "ADV" or child.text in ("never", "not"))
-            ):
-                phrase.append(child)
-        if not added:
-            phrase.append(root)
-        if len(phrase) <= 1:
-            phrase = []
-        return phrase, processed_verbs
-
-    phrases = []
-    while roots:
-        root = roots.pop()
-        broken = False
-        phrase, processed_verbs = build_phrase(root)
-        if phrase != -1:
-            if phrase:
-                phrases.append(phrase)
-            already_covered |= processed_verbs
-            roots = list(filter(lambda t: t not in processed_verbs, roots))
-
-    phrases.sort(key=lambda t: t[0].i)
-    return tuple(map(lambda xs: " ".join(map(str, xs)), phrases))
 
 def gen_element(speech, slide_is_blank=False):
     """ Process the speech and generate the relevant element. """
@@ -234,6 +229,6 @@ def gen_element(speech, slide_is_blank=False):
 if __name__ == "__main__":
     start = time()
     gen_element(
-        "Now we have to be able to process bullet points Bullet points are fundamental fundamental things tend to be important".lower()
+        "Potatoes are a type of vegatable they tend to be quite tasty they come in red green and blue varieties".lower()
     )
     print(time() - start)
