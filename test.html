@@ -1,0 +1,26 @@
+<html>
+    <body>
+        <p id="current_text"></p>
+        <button id="next_element">Next Element</button>
+        <script>
+            var recognition = new webkitSpeechRecognition();
+            recognition.continuous = true;
+            recognition.onresult = function(event) {
+                var text = '';
+                for(let result of event.results) {
+                    console.log(result);
+                    text += result[0].transcript;
+                }
+                document.getElementById('current_text').innerHTML = text;
+            }
+            var button = document.getElementById('next_element');
+            button.onmousedown = function() {
+                recognition.start();
+            }
+            button.onmouseup = function() {
+                recognition.stop();
+            }
+        </script>
+    </body>
+
+</html>
