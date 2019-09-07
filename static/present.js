@@ -5,6 +5,9 @@ original_img_marign = null;
 img_size = null;
 img_margin = null;
 
+flower = "https://images.pexels.com/photos/736230/pexels-photo-736230.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
+boat = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQin6epPrshg5ou2oNsvzxQH3Ao8cPnjpYLDalvj8iPTlW7NHnm"
+
 function add_image(img_url) {
     if($(".p-body > .p-images").length == 0)
         $(".p-body").append('<div class="p-images"></div>');
@@ -39,10 +42,10 @@ function correct_imgs() {
 function add_bullet(text) {
     if($(".p-body > .p-text").length == 0){
         $(".p-body").prepend('<div class="p-text"><ul></ul></div>');
-        if($(".p-body > .p-images").length > 0){
-            scale_imgs_down(0.7);
-            correct_imgs();
-        }
+        // if($(".p-body > .p-images").length > 0){
+        //     scale_imgs_down(0.7);
+        //     correct_imgs();
+        // }
     }
     $(".p-body > .p-text > ul").append("<li>" + text + "</li>");
 }
