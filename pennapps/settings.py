@@ -11,9 +11,6 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
-import spacy
-import fasttext
-from deepsegment import DeepSegment
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -146,14 +143,3 @@ CHANNEL_LAYERS = {
         },
     },
 }
-
-VALID_CHARS = set("abcdefghijklmnopqrstuvwxyz123456789. ")
-NLP = spacy.load("en_core_web_md")
-merge_ncs = NLP.create_pipe("merge_noun_chunks")
-merge_ents = NLP.create_pipe("merge_entities")
-NLP.add_pipe(merge_ents)
-NLP.add_pipe(merge_ncs)
-
-MODEL = fasttext.load_model(os.path.join(
-    BASE_DIR, "data", "model_1000000.ftz"))
-SEGMENTER = DeepSegment("en")

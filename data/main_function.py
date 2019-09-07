@@ -12,13 +12,22 @@ import json
 import urllib.request
 from time import time
 from bs4 import BeautifulSoup
-from django.conf import settings
+import os
+import spacy
+import fasttext
+from deepsegment import DeepSegment
 
 # load things:
-VALID_CHARS = settings.VALID_CHARS
-nlp = settings.NLP
-model = settings.MODEL
-segmenter = settings.SEGMENTER
+VALID_CHARS = set("abcdefghijklmnopqrstuvwxyz123456789. ")
+nlp = spacy.load("en_core_web_md")
+merge_ncs = nlp.create_pipe("merge_noun_chunks")
+merge_ents = nlp.create_pipe("merge_entities")
+nlp.add_pipe(merge_ents)
+nlp.add_pipe(merge_ncs)
+
+model = fasttext.load_model(os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), "model_1000000.ftz"))
+segmenter = DeepSegment("en")
 
 ########################
 # Function definitions #

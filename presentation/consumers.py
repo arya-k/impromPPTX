@@ -37,5 +37,5 @@ class PresentationConsumer(WebsocketConsumer):
         if data['page_type'] == self.page_type:
             return
         req = requests.get(
-            'http://127.0.0.1:8000/get_element/?text={text}&event={event}'.format(**data))
+            'http://127.0.0.1:8001/get_element/?text={text}&event={event}'.format(**data))
         self.send(json.dumps({'update': req.json()}))
