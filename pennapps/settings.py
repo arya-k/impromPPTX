@@ -143,3 +143,14 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+VALID_CHARS = set("abcdefghijklmnopqrstuvwxyz123456789. ")
+nlp = spacy.load("en_core_web_md")
+merge_ncs = nlp.create_pipe("merge_noun_chunks")
+merge_ents = nlp.create_pipe("merge_entities")
+nlp.add_pipe(merge_ents)
+nlp.add_pipe(merge_ncs)
+
+model = fasttext.load_model(os.path.join(
+    settings.BASE_DIR, "data", "model_1000000.ftz"))
+segmenter = DeepSegment("en")
