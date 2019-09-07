@@ -7,9 +7,9 @@ from django.contrib import messages
 from django.http import HttpResponse
 
 import random
-import StringIO
 import numpy as np
-from matplotlib.figure import Figure, FigureCanvas
+import tempfile
+from matplotlib.figure import Figure
 
 
 class RegistrationView(View):
@@ -78,8 +78,7 @@ class GraphView(View):
 
         axis.plot(xs, ys, "o", ms=3, color=random.choice(plot_colors))
         axis.plot(x_new, y_new, color=random.choice(line_colors))
-
-        canvas = FigureCanvas(fig)
-        output = StringIO.StringIO()
-        canvas.print_png(output)
-        return HttpResponse(output.getvalue(), content_type="image/png")
+        tmpfile = tempfile.NamedTemporaryFile()
+        fig.savefig(tmpfile.name + '.png')
+        with open(tmpfile.name + '.png', 'rb') as f:
+            return HttpResponse(f.read(), content_type='image/png')
