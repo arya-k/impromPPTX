@@ -36,4 +36,5 @@ class PresentationConsumer(WebsocketConsumer):
         text = data['text']
         print(text)
         el = gen_element(text, data['event'] == 'next_slide')
+        print(el)
         self.send(json.dumps({'update': el.json()}))

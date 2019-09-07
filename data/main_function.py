@@ -208,7 +208,7 @@ def gen_element(speech, slide_is_blank=False):
     # first, split the text into multiple sentences if possible:
     proc_speech = "".join(
         c for c in speech.lower() if c in VALID_CHARS)
-    proc_speech = ". ".join(settings.SEGMENTER.segment(proc_speech))
+    proc_speech = ". ".join(segmenter.segment(proc_speech))
 
     if slide_is_blank:
         return Title(proc_speech)
