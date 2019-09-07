@@ -27,8 +27,9 @@ merge_ents = nlp.create_pipe("merge_entities")
 nlp.add_pipe(merge_ents)
 nlp.add_pipe(merge_ncs)
 
-model = fasttext.load_model(os.path.join(
-    settings.BASE_DIR, "data", "model_1000000.ftz"))
+model = fasttext.load_model(
+    os.path.join(settings.BASE_DIR, "data", "model_1000000.ftz")
+)
 segmenter = DeepSegment("en")
 
 ########################
@@ -165,11 +166,15 @@ class Summary:
 class Title:
     def __init__(self, rawtext):
         self.OPTIMAL_LENGTH = 2.9
-        self._title = get_keyphrase(
-            rawtext, OPTIMAL_LENGTH=self.OPTIMAL_LENGTH).title()
+        self._title = get_keyphrase(rawtext, OPTIMAL_LENGTH=self.OPTIMAL_LENGTH).title()
 
     def json(self):
         return {"genre": "title", "content": self._title}
+
+
+class Graph:
+    def json(self):
+        return {"genre": "image", "content": "/graph/"}
 
 
 def get_keyphrase(rawtext, OPTIMAL_LENGTH=2.9):
@@ -218,12 +223,15 @@ def get_keyphrase(rawtext, OPTIMAL_LENGTH=2.9):
 def gen_element(speech, slide_is_blank=False):
     """ Process the speech and generate the relevant element. """
     # first, split the text into multiple sentences if possible:
-    proc_speech = "".join(
-        c for c in speech.lower() if c in VALID_CHARS)
+    proc_speech = "".join(c for c in speech.lower() if c in VALID_CHARS)
     proc_speech = ". ".join(segmenter.segment(proc_speech))
 
     if slide_is_blank:
         return Title(proc_speech)
+
+    # if it is a graph:
+    if "correlat" in proc_speech or " graph" in proc_speech or "chart" in proc_speech:
+        return Graph()
 
     # if it is an image, then return an image immediately:
     if model.predict(proc_speech)[0][0] == "__label__image":
@@ -235,7 +243,5 @@ def gen_element(speech, slide_is_blank=False):
 if __name__ == "__main__":
     print("\n\n\n\n\n\n\n\n\n\n")
     start = time()
-    gen_element(
-        "Potatoes are a type of vegatable they tend to be quite tasty they come in red green and blue varieties".lower()
-    )
+    gen_element("you can tell there is a photograph".lower())
     print(time() - start)
