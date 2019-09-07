@@ -37,12 +37,14 @@ def preprocess_text(text):
 
 class Image:
     def __init__(self, rawtext):
+        self.OPTIMAL_LENGTH = 3.9
         self._url = self._gather_url(self._gather_keyword(rawtext))
 
     def _gather_keyword(self, rawtext):
         # just pick out the sentence that is most likely to be an image call:
         doc = nlp(preprocess_text(rawtext))
         sentences = [s.text for s in doc.sents]
+        best_text = None
         if len(sentences) > 1:
             # pick the most important sentence
             predictions = [model.predict(s) for s in sentences]
@@ -59,8 +61,7 @@ class Image:
         else:
             best_text = preprocess_text(rawtext)
 
-        # TODO: some smarter keyword gathering.
-        return "iphone vs android"
+        return get_keyphrase(best_text, OPTIMAL_LENGTH=self.OPTIMAL_LENGTH)
 
     def _gather_url(self, keyword):
         soup = BeautifulSoup(
@@ -104,26 +105,32 @@ class Summary:
 class Title:
     def __init__(self, rawtext):
         self.OPTIMAL_LENGTH = 2.9
-        self._title = self._generate_title(rawtext)
+        self._title = get_keyphrase(rawtext, OPTIMAL_LENGTH=self.OPTIMAL_LENGTH)
 
-    def _generate_title(self, rawtext):
-        doc = nlp(rawtext)
+    def genre(self):
+        return "title"
 
-        candidate = None
-        for verb in filter(lambda x: x.pos_ in ("VERB", "ADP"), doc):
-            phrase = self._from_verb(verb)
-            if (
-                phrase
-                and any(token.pos_ in "NOUN" or 
-                    token.dep_.endswith("comp") 
-                    for token in phrase) 
-                and (not candidate or (
-                    abs(len(phrase) - self.OPTIMAL_LENGTH) < abs(len(candidate) - self.OPTIMAL_LENGTH) 
-                    and phrase
-                ))
-            ):
-                candidate = phrase
-        return " ".join(map(str, candidate))
+    def title(self):
+        return self._title
+
+def get_keyphrase(rawtext, OPTIMAL_LENGTH=2.9):
+    doc = nlp(rawtext)
+
+    candidate = None
+    for verb in filter(lambda x: x.pos_ in ("VERB", "ADP"), doc):
+        phrase = _from_verb(verb)
+        if (
+            phrase
+            and any(token.pos_ in "NOUN" or 
+                token.dep_.endswith("comp") 
+                for token in phrase) 
+            and (not candidate or (
+                abs(len(phrase) - OPTIMAL_LENGTH) < abs(len(candidate) - OPTIMAL_LENGTH) 
+                and phrase
+            ))
+        ):
+            candidate = phrase
+    return " ".join(map(str, candidate))
 
     def _from_verb(self, verb):
         phrase = []
@@ -139,11 +146,7 @@ class Title:
                 current = []
         return phrase if phrase else list(verb.subtree)
 
-    def genre(self):
-        return "title"
 
-    def title(self):
-        return self._title
 
 
 def gen_element(speech, slide_is_blank=False):
