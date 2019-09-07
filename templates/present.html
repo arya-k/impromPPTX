@@ -5,6 +5,7 @@
 {% block title %} ImpromPPTX - Present {% endblock title %}
 
 {% block css %}
+<link rel="stylesheet" href="{% static 'present.css' %}">
 {% endblock css %}
 
 {% block content %}
@@ -18,5 +19,13 @@
 </div>
 
 <script src="{% static 'present.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        window.socket = new WebSocket('ws://127.0.0.1:8000/ws/presentation/');
+        window.socket.onmessage = function (msg) {
+            console.log(msg);
+        }
+    })
+</script>
 
 {% endblock content %}

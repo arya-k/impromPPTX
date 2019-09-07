@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView as AuthLoginView, LogoutView as AuthLogoutView
 from django.contrib import messages
 
@@ -26,9 +27,19 @@ class LoginView(AuthLoginView):
 
 
 class LogoutView(AuthLogoutView):
-    template_name = 'logout.html'
+    next_page = "index"
 
 
 class IndexView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'index.html')
+
+
+class ClickerView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'clicker.html')
+
+
+class PresentView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         return render(request, 'present.html')

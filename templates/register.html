@@ -1,17 +1,8 @@
-{% extends "base.html" %}
-{% load static %}
-{% block css %}
-<link rel="stylesheet" href="{% static 'form.css' %}">
+{% extends 'form.html' %}
+{% block title %}Register{% endblock %}
+{% block additional %}
+<div><a href="{% url 'login' %}">Already registered? Click here to log in.</a></div>
 {% endblock %}
-{% block content %}
-<div class="presentation">
-    <div class="p-header">
-        <h1>Register</h1>
-    </div>
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn">Register</button>
-    </form>
-</div>
-{% endblock %}
+{% block button %}
+Sign Up
+{% endblock button %}

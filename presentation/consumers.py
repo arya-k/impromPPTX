@@ -4,6 +4,7 @@ import json
 
 
 class PresentationConsumer(WebsocketConsumer):
+
     def connect(self):
         if not self.scope["user"].is_authenticated:
             return
@@ -30,4 +31,6 @@ class PresentationConsumer(WebsocketConsumer):
         )
 
     def handle_message(self, event):
-        self.send(json.dumps(event['message']))
+        data = event['message']
+        # text = data['text']
+        self.send(json.dumps({'for': 'presenter', 'update': data}))

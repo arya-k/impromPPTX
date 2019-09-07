@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block css %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+{% endblock %}
+{% block content %}
+<div class="container">
+    <button class="jumbotron jumbotron mt-4 text-center border shadow w-100" id="next_slide">
+        <div class="container">
+            <h1 class="display-4 my-4">Next Slide</h1>
+        </div>
+    </button>
+    <button class="jumbotron jumbotron mt-4 text-center border shadow w-100" id="next_element">
+        <div class="container">
+            <h1 class="display-4 my-4">Next Element</h1>
+        </div>
+    </button>
+</div>
+{% endblock %}
+{% block js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+        window.socket = new WebSocket('ws://127.0.0.1:8000/ws/presentation/');
+        window.slide_recognition = new webkitSpeechRecognition();
+        window.slide_recognition.continuous = true;
+        window.slide_recognition.onresult = function (event) {
+            let text = '';
+            for (let result of event.results) {
+                text += result[0].transcript;
+            }
+            window.socket.send(JSON.stringify({ event: 'next_slide', text: text }))
+        }
+        window.element_recognition = new webkitSpeechRecognition();
+        window.element_recognition.continuous = true;
+        window.element_recognition.onresult = function (event) {
+            let text = '';
+            for (let result of event.results) {
+                text += result[0].transcript;
+            }
+            window.socket.send(JSON.stringify({ event: 'next_element', text: text }))
+        }
+    })
+    $("#next_slide").mousedown(function (e) {
+        $(this).removeClass('shadow');
+        window.slide_recognition.start();
+    })
+    $("#next_slide").mouseup(function (e) {
+        $(this).addClass('shadow');
+        window.slide_recognition.stop();
+
+    })
+
+    $("#next_element").mousedown(function (e) {
+        $(this).removeClass('shadow');
+        window.element_recognition.start();
+    })
+    $("#next_element").mouseup(function (e) {
+        $(this).addClass('shadow');
+        window.element_recognition.stop();
+
+    })
+</script>
+{% endblock %}
