@@ -32,6 +32,8 @@ class PresentationConsumer(WebsocketConsumer):
         )
 
     def handle_message(self, event):
+        if self.channel_name == event['sender_channel_name']:
+            return
         data = event['message']
         text = data['text']
         print(text)
