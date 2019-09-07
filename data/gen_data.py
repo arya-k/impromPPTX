@@ -7,12 +7,12 @@ TODO: Consider determining title based on whether the slide is blank
 
 """
 import csv
-import spacy
 import inflect
 import requests
 import fasttext
+
 from tqdm import tqdm
-from random import choice, randint
+from random import choice
 from collections import namedtuple
 
 # these are the datatype labels for fasttext.
@@ -33,10 +33,6 @@ def gather_image_subjects():
     )
     raw_labels = [x.split(",")[1] for x in response.text.splitlines() if "," in x]
     return [x for x in raw_labels if all(d.isalpha() or d.isspace() for d in x)]
-
-
-# ['', 'id', 'title', 'publication', 'author', 'date', 'year', 'month', 'url', 'content']
-nlp = spacy.load("en")
 
 
 def predict_images(num_examples):
@@ -74,24 +70,17 @@ def predict_images(num_examples):
 def predict_summarize(num_examples):
     """ Generates predictions for the summarize function. """
 
-    # start by gathering a large number of sentences:
+    # load the sentences into memory:
     count = 0
-    with open("articles1.csv", "r") as csvfile:
-        datareader = csv.reader(csvfile)
-        next(datareader)  # header
-        for article in (a[9] for a in datareader):
-            doc = nlp(article)
-            valid_sentences = [s.text for s in doc.sents if len(s.text) > 100]
+    all_sentences = []
+    with open("sentences.csv", "r") as csvfile:
+        datareader = csv.reader(csvfile, delimiter="\t")
+        for num, lang, sent in datareader:
+            if lang == "eng":
+                all_sentences.append(sent)
 
-            # get 10 random ranges in valid_sentences:
-            for _ in range(int(len(valid_sentences) / 2)):
-                bottom_bound = randint(0, len(valid_sentences) - 5)
-                yield " ".join(
-                    valid_sentences[bottom_bound : bottom_bound + randint(1, 4)]
-                )
-                count += 1
-                if count > num_examples:
-                    return
+    for _ in range(num_examples):
+        yield choice(all_sentences)
 
 
 VALID_CHARS = set("abcdefghijklmnopqrstuvwxyz123456789.?! ")
@@ -104,14 +93,14 @@ def preprocess_text(text):
 
 def main():
     print("GANERATING TRAINING DATA.")
-    num_samples = int(100000)
+    num_samples = int(1000000)
 
     # generate the fasttext data:
     with open("data.train.txt", "w") as f:
         for line in tqdm(predict_images(num_samples), total=num_samples):
-            f.write("__label__image {}\n".format(line))
+            f.write("__label__image {}\n".format(preprocess_text(line)))
         for line in tqdm(predict_summarize(num_samples), total=num_samples):
-            f.write("__label__summarize {}\n".format(line))
+            f.write("__label__summarize {}\n".format(preprocess_text(line)))
 
     print("TRAINING MODEL.")
     model = fasttext.train_supervised("data.train.txt")

@@ -18,7 +18,7 @@ from bs4 import BeautifulSoup
 # load things:
 VALID_CHARS = set("abcdefghijklmnopqrstuvwxyz123456789.?! ")
 nlp = spacy.load("en_core_web_sm")
-model = fasttext.load_model("model_100000.ftz")
+model = fasttext.load_model("model_1000000.ftz")
 
 ########################
 # Function definitions #
@@ -176,8 +176,6 @@ def gen_element(speech, slide_is_blank=False):
 
 if __name__ == "__main__":
     start = time()
-    img = gen_element(
-        "today i wish to talk to y'all about some cool motherfucking cars", True
-    )
+    img = gen_element("today i wish to talk to y'all about some dope ass stuff", True)
     print(img.title())
     print(time() - start)
