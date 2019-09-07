@@ -3,20 +3,27 @@ from main_function import gen_element
 import json
 
 
+def line(s):
+    ret = ""
+    while True:
+        c = s.recv(1).decode("UTF8")
+        if c == "\n":
+            break
+        else:
+            ret += c
+    return ret
+
+
 class MyTCPHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
         # self.request is the TCP socket connected to the client
-        deets = []
-        data = self.request.recv(1024).decode().strip()
-        while data:
-            deets.append(data)
-            data = self.request.recv(1024).decode().strip()
-        real_deets = ''.join(deets)
+        real_deets = line(self.request)
         json_deets = json.loads(real_deets)
         el = gen_element(json_deets['text'],
                          json_deets['event'] == "new_slide")
         self.request.sendall(json.dumps(el.json()).encode())
+        self.request.close()
 
 
 if __name__ == "__main__":
