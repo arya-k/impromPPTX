@@ -1,6 +1,7 @@
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 import json
+from data.main_function import gen_element
 
 
 class PresentationConsumer(WebsocketConsumer):
@@ -32,6 +33,7 @@ class PresentationConsumer(WebsocketConsumer):
 
     def handle_message(self, event):
         data = event['message']
-        # text = data['text']
-        # data['event'] in {'next_slide', 'next_element'} == True
-        self.send(json.dumps({'for': 'presenter', 'update': data}))
+        text = data['text']
+        print(text)
+        el = gen_element(text, data['event'] == 'next_slide')
+        self.send(json.dumps({'update': el.json()}))

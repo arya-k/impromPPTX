@@ -9,6 +9,7 @@ __email__ = "thearyaskumar@gmail.com"
 __date__ = "09/07/19"
 
 import json
+import os
 import spacy
 import fasttext
 import urllib.request
@@ -16,6 +17,7 @@ from time import time
 from bs4 import BeautifulSoup
 from collections import deque
 from deepsegment import DeepSegment
+from django.conf import settings
 
 # load things:
 VALID_CHARS = set("abcdefghijklmnopqrstuvwxyz123456789. ")
@@ -25,7 +27,8 @@ merge_ents = nlp.create_pipe("merge_entities")
 nlp.add_pipe(merge_ents)
 nlp.add_pipe(merge_ncs)
 
-model = fasttext.load_model("model_1000000.ftz")
+model = fasttext.load_model(os.path.join(
+    settings.BASE_DIR, "data", "model_1000000.ftz"))
 segmenter = DeepSegment("en")
 
 ########################
@@ -162,7 +165,8 @@ class Summary:
 class Title:
     def __init__(self, rawtext):
         self.OPTIMAL_LENGTH = 2.9
-        self._title = get_keyphrase(rawtext, OPTIMAL_LENGTH=self.OPTIMAL_LENGTH).title()
+        self._title = get_keyphrase(
+            rawtext, OPTIMAL_LENGTH=self.OPTIMAL_LENGTH).title()
 
     def json(self):
         return {"genre": "title", "content": self._title}
@@ -214,17 +218,18 @@ def get_keyphrase(rawtext, OPTIMAL_LENGTH=2.9):
 def gen_element(speech, slide_is_blank=False):
     """ Process the speech and generate the relevant element. """
     # first, split the text into multiple sentences if possible:
-    speech = ". ".join(segmenter.segment(speech))
-    preprocessed_speech = "".join(c for c in speech.lower() if c in VALID_CHARS)
+    proc_speech = "".join(
+        c for c in speech.lower() if c in VALID_CHARS)
+    proc_speech = ". ".join(segmenter.segment(proc_speech))
 
     if slide_is_blank:
-        return Title(preprocessed_speech)
+        return Title(proc_speech)
 
     # if it is an image, then return an image immediately:
-    if model.predict(preprocessed_speech)[0][0] == "__label__image":
-        return Image(preprocessed_speech)
+    if model.predict(proc_speech)[0][0] == "__label__image":
+        return Image(proc_speech)
     else:
-        return Summary(preprocessed_speech)
+        return Summary(proc_speech)
 
 
 if __name__ == "__main__":
