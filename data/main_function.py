@@ -38,7 +38,8 @@ def preprocess_text(text):
 class Image:
     def __init__(self, rawtext):
         self.OPTIMAL_LENGTH = 3.9
-        self._url = self._gather_url(self._gather_keyword(rawtext))
+        self._phrase = self._gather_keyword(rawtext)
+        self._url = self._gather_url(self._phrase)
 
     def _gather_keyword(self, rawtext):
         # just pick out the sentence that is most likely to be an image call:
@@ -105,7 +106,9 @@ class Summary:
 class Title:
     def __init__(self, rawtext):
         self.OPTIMAL_LENGTH = 2.9
-        self._title = get_keyphrase(rawtext, OPTIMAL_LENGTH=self.OPTIMAL_LENGTH)
+        self._title = get_keyphrase(
+            preprocess_text(rawtext), OPTIMAL_LENGTH=self.OPTIMAL_LENGTH
+        ).title()
 
     def genre(self):
         return "title"
@@ -113,32 +116,20 @@ class Title:
     def title(self):
         return self._title
 
+
 def get_keyphrase(rawtext, OPTIMAL_LENGTH=2.9):
-    doc = nlp(rawtext)
-
-    candidate = None
-    for verb in filter(lambda x: x.pos_ in ("VERB", "ADP"), doc):
-        phrase = _from_verb(verb)
-        if (
-            phrase
-            and any(token.pos_ in "NOUN" or 
-                token.dep_.endswith("comp") 
-                for token in phrase) 
-            and (not candidate or (
-                abs(len(phrase) - OPTIMAL_LENGTH) < abs(len(candidate) - OPTIMAL_LENGTH) 
-                and phrase
-            ))
-        ):
-            candidate = phrase
-    return " ".join(map(str, candidate))
-
-    def _from_verb(self, verb):
+    def _from_verb(verb):
         phrase = []
         current = []
         for child in verb.children:
-            if (
-                child.pos_ in ("NOUN", "VERB", "CCONJ", "ADP") and
-                child.dep_ in ("cc", "pobj", "dobj", "conj", "xcomp", "pcomp", "advcl")
+            if child.pos_ in ("NOUN", "VERB", "CCONJ", "ADP") and child.dep_ in (
+                "cc",
+                "pobj",
+                "dobj",
+                "conj",
+                "xcomp",
+                "pcomp",
+                "advcl",
             ):
                 current.extend(child.subtree)
             if child.pos_ in ("NOUN", "VERB"):
@@ -146,25 +137,47 @@ def get_keyphrase(rawtext, OPTIMAL_LENGTH=2.9):
                 current = []
         return phrase if phrase else list(verb.subtree)
 
+    doc = nlp(rawtext)
 
+    candidate = None
+    for verb in filter(lambda x: x.pos_ in ("VERB", "ADP"), doc):
+        phrase = _from_verb(verb)
+        if (
+            phrase
+            and any(
+                token.pos_ in "NOUN" or token.dep_.endswith("comp") for token in phrase
+            )
+            and (
+                not candidate
+                or (
+                    abs(len(phrase) - OPTIMAL_LENGTH)
+                    < abs(len(candidate) - OPTIMAL_LENGTH)
+                    and phrase
+                )
+            )
+        ):
+            candidate = phrase
+    return " ".join(map(str, candidate))
 
 
 def gen_element(speech, slide_is_blank=False):
     """ Process the speech and generate the relevant element. """
 
     if slide_is_blank:
-        return print("I THINK I SHOULD RETURN A TITLE")
+        return Title(speech)
 
     # if it is an image, then return an image immediately:
     cleaned_text = preprocess_text(speech)
     if model.predict(cleaned_text)[0][0] == "__label__image":
-        print("I THINK THIS IS AN IMAGE")
-        return Image(speech).url()
+        return Image(speech)
     else:
         return print("I THINK I SHOULD RETURN SOME BULLET POINTS.")
 
 
 if __name__ == "__main__":
     start = time()
-    print(gen_element("you can see a picture of a tree"))
+    img = gen_element(
+        "today i wish to talk to y'all about some cool motherfucking cars", True
+    )
+    print(img.title())
     print(time() - start)

@@ -52,6 +52,8 @@ def predict_images(num_examples):
         "this is a picture of {}",
         "this is an image of {}",
         "here are some examples of {}",
+        "take a look at these pictures of {} that i took.",
+        "check out this image of {}",
     ]
 
     p = inflect.engine()
