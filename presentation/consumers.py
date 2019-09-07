@@ -1,7 +1,18 @@
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 import json
-from data.main_function import gen_element
+import socket
+
+
+def line(s):
+    ret = ""
+    while True:
+        c = s.recv(1).decode("UTF8")
+        if c == "\n":
+            break
+        else:
+            ret += c
+    return ret
 
 
 class PresentationConsumer(WebsocketConsumer):
@@ -10,6 +21,7 @@ class PresentationConsumer(WebsocketConsumer):
         if not self.scope["user"].is_authenticated:
             return
         self.room_group_name = 'presentation_%s' % self.scope["user"].username
+        self.page_type = self.scope['url_route']['kwargs']['page_type']
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
             self.channel_name
@@ -33,7 +45,12 @@ class PresentationConsumer(WebsocketConsumer):
 
     def handle_message(self, event):
         data = event['message']
-        text = data['text']
-        print(text)
-        el = gen_element(text, data['event'] == 'next_slide')
-        self.send(json.dumps({'update': el.json()}))
+        if data['page_type'] == self.page_type:
+            return
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect(("localhost", 1337))
+        s.sendall(json.dumps(data).encode())
+        s.send("\n".encode())
+        deets = line(s)
+        s.close()
+        self.send(json.dumps({'update': json.loads(deets)}))

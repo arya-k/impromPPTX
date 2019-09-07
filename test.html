@@ -13,14 +13,15 @@
                 text += result[0].transcript;
             }
             document.getElementById('current_text').innerHTML = text;
-        }
-        var button = document.getElementById('next_element');
-        button.onmousedown = function () {
-            recognition.start();
-        }
-        button.onmouseup = function () {
             recognition.stop();
         }
+        var button = document.getElementById('next_element');
+        button.onclick = function () {
+            recognition.start();
+        }
+        // button.onmouseup = function () {
+        //     recognition.stop();
+        // }
     </script>
 </body>
 

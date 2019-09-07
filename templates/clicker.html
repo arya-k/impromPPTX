@@ -29,7 +29,7 @@
     crossorigin="anonymous"></script>
 <script>
     $(document).ready(function () {
-        window.socket = new WebSocket('ws://127.0.0.1:8000/ws/presentation/');
+        window.socket = new WebSocket('ws://127.0.0.1:8000/ws/presentation/clicker/');
         window.slide_recognition = new webkitSpeechRecognition();
         window.slide_recognition.continuous = true;
         window.slide_recognition.onresult = function (event) {
@@ -37,7 +37,8 @@
             for (let result of event.results) {
                 text += result[0].transcript;
             }
-            window.socket.send(JSON.stringify({ event: 'next_slide', text: text }))
+            window.socket.send(JSON.stringify({ page_type: 'clicker', event: 'next_slide', text: text }))
+            window.slide_recognition.stop();
         }
         window.element_recognition = new webkitSpeechRecognition();
         window.element_recognition.continuous = true;
@@ -46,27 +47,16 @@
             for (let result of event.results) {
                 text += result[0].transcript;
             }
-            window.socket.send(JSON.stringify({ event: 'next_element', text: text }))
+            window.socket.send(JSON.stringify({ page_type: 'clicker', event: 'next_element', text: text }))
+            window.element_recognition.stop();
         }
     })
-    $("#next_slide").mousedown(function (e) {
-        $(this).removeClass('shadow');
+    $("#next_slide").click(function (e) {
         window.slide_recognition.start();
     })
-    $("#next_slide").mouseup(function (e) {
-        $(this).addClass('shadow');
-        window.slide_recognition.stop();
 
-    })
-
-    $("#next_element").mousedown(function (e) {
-        $(this).removeClass('shadow');
+    $("#next_element").click(function (e) {
         window.element_recognition.start();
-    })
-    $("#next_element").mouseup(function (e) {
-        $(this).addClass('shadow');
-        window.element_recognition.stop();
-
     })
 </script>
 {% endblock %}

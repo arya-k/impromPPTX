@@ -8,16 +8,13 @@ __author__ = "Arya Kumar"
 __email__ = "thearyaskumar@gmail.com"
 __date__ = "09/07/19"
 
-import json
 import os
+import json
 import spacy
 import fasttext
 import urllib.request
-from time import time
 from bs4 import BeautifulSoup
-from collections import deque
 from deepsegment import DeepSegment
-from django.conf import settings
 
 # load things:
 VALID_CHARS = set("abcdefghijklmnopqrstuvwxyz123456789. ")
@@ -28,7 +25,7 @@ nlp.add_pipe(merge_ents)
 nlp.add_pipe(merge_ncs)
 
 model = fasttext.load_model(
-    os.path.join(settings.BASE_DIR, "data", "model_1000000.ftz")
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), "model_1000000.ftz")
 )
 segmenter = DeepSegment("en")
 
@@ -138,7 +135,6 @@ class Summary:
         phrases = []
         while roots:
             root = roots.pop()
-            broken = False
             phrase, processed_verbs = build_phrase(root)
             if phrase != -1:
                 if phrase:
@@ -241,7 +237,6 @@ def gen_element(speech, slide_is_blank=False):
 
 
 if __name__ == "__main__":
-    print("\n\n\n\n\n\n\n\n\n\n")
-    start = time()
-    gen_element("you can tell there is a photograph".lower())
-    print(time() - start)
+    t = input("Text: ")
+    e = input("Event: ")
+    print(json.dumps(gen_element(t, e == "new_slide")))
