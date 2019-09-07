@@ -230,9 +230,6 @@ def gen_element(speech, slide_is_blank=False):
 
 
 if __name__ == "__main__":
-    print("\n\n\n\n\n\n\n\n\n\n")
-    start = time()
-    gen_element(
-        "Potatoes are a type of vegatable they tend to be quite tasty they come in red green and blue varieties".lower()
-    )
-    print(time() - start)
+    t = input("Text: ")
+    e = input("Event: ")
+    print(json.dumps(gen_element(t, e == "new_slide")))

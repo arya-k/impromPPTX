@@ -1,7 +1,7 @@
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 import json
-import requests
+import socket
 
 
 class PresentationConsumer(WebsocketConsumer):
@@ -36,6 +36,13 @@ class PresentationConsumer(WebsocketConsumer):
         data = event['message']
         if data['page_type'] == self.page_type:
             return
-        req = requests.get(
-            'http://127.0.0.1:8001/get_element/?text={text}&event={event}'.format(**data))
-        self.send(json.dumps({'update': req.json()}))
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect(("localhost", 9999))
+        s.sendall(json.dumps(data).encode())
+        full_deets = []
+        deets = s.recv(1024).decode().strip()
+        while deets:
+            full_deets.append(deets)
+            deets = s.recv(1024).decode().strip()
+        the_full_deets = ''.join(full_deets)
+        self.send(json.dumps({'update': json.loads(the_full_deets)}))
