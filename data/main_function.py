@@ -17,7 +17,7 @@ from bs4 import BeautifulSoup
 
 # load things:
 VALID_CHARS = set("abcdefghijklmnopqrstuvwxyz123456789.?! ")
-nlp = spacy.load("en")
+nlp = spacy.load("en_core_web_sm")
 model = fasttext.load_model("model_100000.ftz")
 
 ########################
@@ -103,11 +103,41 @@ class Summary:
 
 class Title:
     def __init__(self, rawtext):
+        self.OPTIMAL_LENGTH = 2.9
         self._title = self._generate_title(rawtext)
 
     def _generate_title(self, rawtext):
-        # TODO: Generate a Title from the larger rawtext
-        pass
+        doc = nlp(rawtext)
+
+        candidate = None
+        for verb in filter(lambda x: x.pos_ in ("VERB", "ADP"), doc):
+            phrase = self._from_verb(verb)
+            if (
+                phrase
+                and any(token.pos_ in "NOUN" or 
+                    token.dep_.endswith("comp") 
+                    for token in phrase) 
+                and (not candidate or (
+                    abs(len(phrase) - self.OPTIMAL_LENGTH) < abs(len(candidate) - self.OPTIMAL_LENGTH) 
+                    and phrase
+                ))
+            ):
+                candidate = phrase
+        return " ".join(map(str, candidate))
+
+    def _from_verb(self, verb):
+        phrase = []
+        current = []
+        for child in verb.children:
+            if (
+                child.pos_ in ("NOUN", "VERB", "CCONJ", "ADP") and
+                child.dep_ in ("cc", "pobj", "dobj", "conj", "xcomp", "pcomp", "advcl")
+            ):
+                current.extend(child.subtree)
+            if child.pos_ in ("NOUN", "VERB"):
+                phrase.extend(current)
+                current = []
+        return phrase if phrase else list(verb.subtree)
 
     def genre(self):
         return "title"
