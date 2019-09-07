@@ -89,11 +89,8 @@ class Image:
 
         return json.loads(soup.find("a", {"class": "iusc"})["m"])["murl"]
 
-    def genre(self):
-        return "image"
-
-    def url(self):
-        return self._url
+    def json(self):
+        return {"genre": "image", "content": self._url}
 
 
 class Summary:
@@ -158,11 +155,8 @@ class Summary:
         ]
         return [b.capitalize() for b in mostlysanitized]
 
-    def genre(self):
-        return "summary"
-
-    def summarized_text(self):
-        return self._summary
+    def json(self):
+        return {"genre": "summary", "content": self._summary}
 
 
 class Title:
@@ -170,11 +164,8 @@ class Title:
         self.OPTIMAL_LENGTH = 2.9
         self._title = get_keyphrase(rawtext, OPTIMAL_LENGTH=self.OPTIMAL_LENGTH).title()
 
-    def genre(self):
-        return "title"
-
-    def title(self):
-        return self._title
+    def json(self):
+        return {"genre": "title", "content": self._title}
 
 
 def get_keyphrase(rawtext, OPTIMAL_LENGTH=2.9):
