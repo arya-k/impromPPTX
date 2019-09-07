@@ -5,17 +5,19 @@
 
 {% endblock %}
 {% block content %}
-<div class="container">
-    <button class="jumbotron jumbotron mt-4 text-center border shadow w-100" id="next_slide">
-        <div class="container">
-            <h1 class="display-4 my-4">Next Slide</h1>
-        </div>
-    </button>
-    <button class="jumbotron jumbotron mt-4 text-center border shadow w-100" id="next_element">
-        <div class="container">
-            <h1 class="display-4 my-4">Next Element</h1>
-        </div>
-    </button>
+<div class="fixed-bottom mb-5 h-50">
+    <div class="row h-100">
+        <button class="jumbotron jumbotron bg-dark text-light text-center border shadow col mx-4" id="next_slide">
+            <div class="container">
+                <h1 class="display-4 ">Next Slide</h1>
+            </div>
+        </button>
+        <button class="jumbotron jumbotron bg-info text-white text-center border shadow col mx-4" id="next_element">
+            <div class="container">
+                <h1 class="display-4">Next Element</h1>
+            </div>
+        </button>
+    </div>
 </div>
 {% endblock %}
 {% block js %}
