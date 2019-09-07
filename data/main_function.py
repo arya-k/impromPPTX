@@ -8,13 +8,31 @@ __author__ = "Arya Kumar"
 __email__ = "thearyaskumar@gmail.com"
 __date__ = "09/07/19"
 
+import json
+import spacy
 import fasttext
+import urllib.request
+from time import time
+from bs4 import BeautifulSoup
+
+# load things:
+VALID_CHARS = set("abcdefghijklmnopqrstuvwxyz123456789.?! ")
+nlp = spacy.load("en")
+model = fasttext.load_model("model_100000.ftz")
+
+########################
+# Function definitions #
+########################
+
+
+def preprocess_text(text):
+    """ simplify the text before fasttext processing. """
+    return "".join(c for c in text.lower() if c in VALID_CHARS)
+
 
 #####################
 # Class definitions #
 #####################
-
-VALID_CHARS = set("abcdefghijklmnopqrstuvwxyz123456789.?! ")
 
 
 class Image:
@@ -22,12 +40,44 @@ class Image:
         self._url = self._gather_url(self._gather_keyword(rawtext))
 
     def _gather_keyword(self, rawtext):
-        # TODO: Process the keyword from the rawtext.
-        pass
+        # just pick out the sentence that is most likely to be an image call:
+        doc = nlp(preprocess_text(rawtext))
+        sentences = [s.text for s in doc.sents]
+        if len(sentences) > 1:
+            # pick the most important sentence
+            predictions = [model.predict(s) for s in sentences]
+            print([(p, s) for p, s in zip(predictions, sentences)])
+            best_prediction = 0
+            for i, p in enumerate(predictions):
+                if p[0][0] == "__label__image":
+                    if (
+                        p[1][0] > predictions[best_prediction][1][0]
+                        or predictions[best_prediction][0][0] != "__label__image"
+                    ):
+                        best_prediction = i
+            best_text = sentences[best_prediction]
+        else:
+            best_text = preprocess_text(rawtext)
+
+        # TODO: some smarter keyword gathering.
+        return "iphone vs android"
 
     def _gather_url(self, keyword):
-        # TODO: Return the URL found from an image searching through google images
-        pass
+        soup = BeautifulSoup(
+            urllib.request.urlopen(
+                urllib.request.Request(
+                    "http://www.bing.com/images/search?q="
+                    + "+".join(keyword.split())
+                    + "&FORM=HDRSC2",
+                    headers={
+                        "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36"
+                    },
+                )
+            ),
+            "html.parser",
+        )
+
+        return json.loads(soup.find("a", {"class": "iusc"})["m"])["murl"]
 
     def genre(self):
         return "image"
@@ -66,22 +116,22 @@ class Title:
         return self._title
 
 
-def preprocess_text(text):
-    """ simplify the text before fasttext processing. """
-    return "".join(c for c in text.lower() if c in VALID_CHARS)
-
-
 def gen_element(speech, slide_is_blank=False):
     """ Process the speech and generate the relevant element. """
+
+    if slide_is_blank:
+        return print("I THINK I SHOULD RETURN A TITLE")
 
     # if it is an image, then return an image immediately:
     cleaned_text = preprocess_text(speech)
     if model.predict(cleaned_text)[0][0] == "__label__image":
         print("I THINK THIS IS AN IMAGE")
+        return Image(speech).url()
     else:
-        print("I THINK THIS IS SOME TEXT")
+        return print("I THINK I SHOULD RETURN SOME BULLET POINTS.")
 
 
-model = fasttext.load_model("model_100000.ftz")
 if __name__ == "__main__":
-    gen_element("you can see a platypuss here")
+    start = time()
+    print(gen_element("you can see a picture of a tree"))
+    print(time() - start)
