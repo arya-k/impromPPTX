@@ -21,13 +21,14 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         real_deets = line(self.request)
         json_deets = json.loads(real_deets)
         el = gen_element(json_deets['text'],
-                         json_deets['event'] == "new_slide")
+                         json_deets['event'] == "next_slide")
         self.request.sendall(json.dumps(el.json()).encode())
+        self.request.send("\n".encode())
         self.request.close()
 
 
 if __name__ == "__main__":
-    HOST, PORT = "localhost", 9999
+    HOST, PORT = "localhost", 1337
 
     # Create the server, binding to localhost on port 9999
     with socketserver.TCPServer((HOST, PORT), MyTCPHandler) as server:

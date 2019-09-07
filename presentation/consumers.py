@@ -48,8 +48,9 @@ class PresentationConsumer(WebsocketConsumer):
         if data['page_type'] == self.page_type:
             return
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(("localhost", 9999))
+        s.connect(("localhost", 1337))
         s.sendall(json.dumps(data).encode())
         s.send("\n".encode())
         deets = line(s)
+        s.close()
         self.send(json.dumps({'update': json.loads(deets)}))
