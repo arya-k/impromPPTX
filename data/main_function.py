@@ -146,7 +146,10 @@ class Summary:
                 roots = list(filter(lambda t: t not in processed_verbs, roots))
 
         phrases.sort(key=lambda t: t[0].i)
-        return tuple(map(lambda xs: " ".join(map(str, xs)), phrases))
+        unsanitized = [" ".join(map(str, xs)) for xs in phrases]
+        kindasanitized =  ["".join(c for c in bullet.lower() if c.isdigit() or c.isalpha() or c.isspace()) for bullet in unsanitized]
+        mostlysanitized =  [" ".join(c for c in bullet.split(" ") if c) for bullet in kindasanitized]
+        return [b.capitalize() for b in mostlysanitized]
 
     def genre(self):
         return "summary"
@@ -223,10 +226,11 @@ def gen_element(speech, slide_is_blank=False):
     if model.predict(preprocessed_speech)[0][0] == "__label__image":
         return Image(preprocessed_speech)
     else:
-        return print("I THINK I SHOULD RETURN SOME BULLET POINTS.")
+        return Summary(preprocessed_speech)
 
 
 if __name__ == "__main__":
+    print("\n\n\n\n\n\n\n\n\n\n")
     start = time()
     gen_element(
         "Potatoes are a type of vegatable they tend to be quite tasty they come in red green and blue varieties".lower()
