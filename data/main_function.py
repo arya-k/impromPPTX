@@ -14,6 +14,7 @@ import fasttext
 import urllib.request
 from time import time
 from bs4 import BeautifulSoup
+from deepsegment import DeepSegment
 
 # load things:
 VALID_CHARS = set("abcdefghijklmnopqrstuvwxyz123456789.?! ")
@@ -43,7 +44,7 @@ class Image:
 
     def _gather_keyword(self, rawtext):
         # just pick out the sentence that is most likely to be an image call:
-        doc = nlp(preprocess_text(rawtext))
+        doc = nlp(rawtext)
         sentences = [s.text for s in doc.sents]
         best_text = None
         if len(sentences) > 1:
@@ -106,9 +107,7 @@ class Summary:
 class Title:
     def __init__(self, rawtext):
         self.OPTIMAL_LENGTH = 2.9
-        self._title = get_keyphrase(
-            preprocess_text(rawtext), OPTIMAL_LENGTH=self.OPTIMAL_LENGTH
-        ).title()
+        self._title = get_keyphrase(rawtext, OPTIMAL_LENGTH=self.OPTIMAL_LENGTH).title()
 
     def genre(self):
         return "title"
@@ -162,20 +161,24 @@ def get_keyphrase(rawtext, OPTIMAL_LENGTH=2.9):
 
 def gen_element(speech, slide_is_blank=False):
     """ Process the speech and generate the relevant element. """
+    # first, split the text into multiple sentences if possible:
+    segmenter = DeepSegment("en")
+    sentenced = ". ".join(segmenter.segment(speech))
+    preprocessed_speech = "".join(c for c in text.lower() if c in VALID_CHARS)
 
     if slide_is_blank:
-        return Title(speech)
+        return Title(preprocessed_speech)
 
     # if it is an image, then return an image immediately:
-    cleaned_text = preprocess_text(speech)
-    if model.predict(cleaned_text)[0][0] == "__label__image":
-        return Image(speech)
+    if model.predict(preprocessed_speech)[0][0] == "__label__image":
+        return Image(preprocessed_speech)
     else:
         return print("I THINK I SHOULD RETURN SOME BULLET POINTS.")
 
 
 if __name__ == "__main__":
     start = time()
-    img = gen_element("today i wish to talk to y'all about some dope ass stuff", True)
-    print(img.title())
+    gen_element(
+        "Now we have to be able to process bullet points Bullet points are fundamental fundamental things tend to be important".lower()
+    )
     print(time() - start)
