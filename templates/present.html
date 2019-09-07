@@ -21,7 +21,7 @@
 <script src="{% static 'present.js' %}"></script>
 <script>
     $(document).ready(function () {
-        window.socket = new WebSocket('ws://127.0.0.1:8000/ws/presentation/');
+        window.socket = new WebSocket('ws://127.0.0.1:8000/ws/presentation/presenter/');
         window.socket.onmessage = function (msg) {
             console.log(msg);
         }

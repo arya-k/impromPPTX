@@ -10,6 +10,7 @@ class PresentationConsumer(WebsocketConsumer):
         if not self.scope["user"].is_authenticated:
             return
         self.room_group_name = 'presentation_%s' % self.scope["user"].username
+        self.page_type = self.scope['url_route']['kwargs']['page_type']
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
             self.channel_name
@@ -32,9 +33,9 @@ class PresentationConsumer(WebsocketConsumer):
         )
 
     def handle_message(self, event):
-        if self.channel_name == event['sender_channel_name']:
-            return
         data = event['message']
+        if data['page_type'] == self.page_type:
+            return
         text = data['text']
         print(text)
         el = gen_element(text, data['event'] == 'next_slide')
