@@ -29,7 +29,7 @@
     crossorigin="anonymous"></script>
 <script>
     $(document).ready(function () {
-        window.socket = new WebSocket('ws://127.0.0.1:8000/ws/presentation/clicker/');
+        window.socket = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws/presentation/clicker/');
         window.slide_recognition = new webkitSpeechRecognition();
         window.slide_recognition.continuous = true;
         window.slide_recognition.onresult = function (event) {
