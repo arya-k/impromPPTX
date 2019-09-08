@@ -49,8 +49,10 @@ class PresentationConsumer(WebsocketConsumer):
             return
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect(("localhost", 1337))
+        print('sending {}'.format(json.dumps(data)))
         s.sendall(json.dumps(data).encode())
         s.send("\n".encode())
         deets = line(s)
+        print('received {}'.format(deets))
         s.close()
         self.send(json.dumps({'update': json.loads(deets)}))
