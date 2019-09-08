@@ -183,7 +183,7 @@ class BigPoint:
         self._bigpoint = bigpoint
 
     def json(self):
-        return {"genre": "bigpoint", content: self._bigpoint}
+        return {"genre": "bigpoint", "content": self._bigpoint}
 
 
 def get_keyphrase(rawtext, OPTIMAL_LENGTH=2.9):
@@ -248,7 +248,7 @@ def gen_element(speech, slide_is_blank=False):
                 "{:,.2f}{}".format(
                     my_num, "%" if "percent" in proc_speech else "")
             )
-        except Error:
+        except Exception:
             return Title(proc_speech)
 
     # if it is a graph:
