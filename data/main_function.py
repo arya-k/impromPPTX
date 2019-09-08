@@ -26,7 +26,8 @@ nlp.add_pipe(merge_ents)
 nlp.add_pipe(merge_ncs)
 
 model = fasttext.load_model(
-    os.path.join(os.path.dirname(os.path.realpath(__file__)), "model_1000000.ftz")
+    os.path.join(os.path.dirname(
+        os.path.realpath(__file__)), "model_1000000.ftz")
 )
 segmenter = DeepSegment("en")
 
@@ -154,7 +155,8 @@ class Summary:
         mostlysanitized = [
             " ".join(c for c in bullet.split(" ") if c) for bullet in kindasanitized
         ]
-        almostcompletelysanitized = [x for x in mostlysanitized if x.count(" ") <= 10]
+        almostcompletelysanitized = [
+            x for x in mostlysanitized if x.count(" ") <= 10]
         return [b.capitalize() for b in almostcompletelysanitized]
 
     def json(self):
@@ -164,7 +166,8 @@ class Summary:
 class Title:
     def __init__(self, rawtext):
         self.OPTIMAL_LENGTH = 2.9
-        self._title = get_keyphrase(rawtext, OPTIMAL_LENGTH=self.OPTIMAL_LENGTH).title()
+        self._title = get_keyphrase(
+            rawtext, OPTIMAL_LENGTH=self.OPTIMAL_LENGTH).title()
 
     def json(self):
         return {"genre": "title", "content": self._title}
@@ -242,7 +245,8 @@ def gen_element(speech, slide_is_blank=False):
             )
             assert my_num != 0  # don't match the word "point"
             return BigPoint(
-                "{}{}".format(my_num, "%" if "percent" in proc_speech else "")
+                "{:,.2f}{}".format(
+                    my_num, "%" if "percent" in proc_speech else "")
             )
         except Error:
             return Title(proc_speech)

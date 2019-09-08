@@ -12,7 +12,7 @@
 <div class="connected"></div>
 <div class="presentation">
     <div class="p-title">
-        <h1 class="title-text"></h1>
+        <h1></h1>
     </div>
     <div class="p-accent-bar"></div>
 </div>
@@ -36,6 +36,9 @@
                 case "image":
                     add_image(deets.content);
                     break;
+                case "bigpoint":
+                    new_big_slide(deets.content);
+                    break;
                 case "summary":
                     for (let bullet of deets.content) {
                         add_bullet(bullet);
@@ -48,3 +51,6 @@
 </script>
 
 {% endblock content %}
+{% block js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FitText.js/1.2.0/jquery.fittext.js"></script>
+{% endblock %}

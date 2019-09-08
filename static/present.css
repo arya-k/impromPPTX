@@ -64,6 +64,11 @@ h1 {
   margin-left: 5%;
 }
 
+.title-text {
+    font-size: 150px!important;
+    margin: 0 auto!important;
+}
+
 li {
   font-size: 28px;
   margin-bottom: 0px;
