@@ -12,10 +12,57 @@
         /* IE 10+ */
         user-select: none;
     }
+
+    .connected {
+        border: none;
+        animation: green-shadow-pulse 2s infinite;
+        text-transform: uppercase;
+    }
+
+    .connected>.disconnected {
+        display: none;
+    }
+
+    .connected.red>.disconnected {
+        display: block;
+    }
+
+    .red {
+        background-color: #dc3545;
+        animation: red-shadow-pulse 2s infinite;
+    }
+
+    @keyframes green-shadow-pulse {
+        0% {
+            box-shadow: 0 0 0 0px rgba(0, 255, 0, 0.5);
+        }
+
+        100% {
+            box-shadow: 0 0 0 10px rgba(0, 255, 0, 0);
+        }
+    }
+
+    @keyframes red-shadow-pulse {
+        0% {
+            box-shadow: 0 0 0 0px rgba(255, 0, 0, 0.5);
+        }
+
+        100% {
+            box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+        }
+    }
 </style>
 {% endblock %}
+{% block bodyclass %}{% endblock %}
 {% block content %}
-<div class="fixed-bottom mb-5 h-50">
+<!-- <div class="mt-5">
+    Connected
+</div> -->
+<div class="fixed-top mt-5 text-center">
+    <button class="btn btn-success red d-flex connected mx-auto" type="button"><span
+            class="disconnected">dis</span>connected</button>
+</div>
+<div class="fixed-bottom mb-5 h-75">
     <div class="row h-100">
         <button class="jumbotron jumbotron bg-dark text-light text-center border shadow col mx-4" id="next_slide">
             <div class="container">
@@ -40,6 +87,12 @@
 <script>
     $(document).ready(function () {
         window.socket = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws/presentation/clicker/');
+        window.socket.onopen = function () {
+            $(".connected").removeClass("red");
+        }
+        window.socket.onclose = function () {
+            $(".connected").addClass("red");
+        }
         window.slide_recognition = new webkitSpeechRecognition();
         window.slide_recognition.continuous = true;
         window.slide_recognition.onresult = function (event) {

@@ -7,9 +7,9 @@
 {% block css %}
 <link rel="stylesheet" href="{% static 'present.css' %}">
 {% endblock css %}
-{% block nav %}{% endblock %}
+{% block bodyclass %}{% endblock %}
 {% block content %}
-
+<div class="connected"></div>
 <div class="presentation">
     <div class="p-title">
         <h1 class="title-text"></h1>
@@ -21,6 +21,12 @@
 <script>
     $(document).ready(function () {
         window.socket = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws/presentation/presenter/');
+        window.socket.onopen = function (e) {
+            $(".connected").removeClass("red");
+        }
+        window.socket.onclose = function (e) {
+            $(".connected").addClass("red");
+        }
         window.socket.onmessage = function (msg) {
             let deets = JSON.parse(msg.data).update;
             switch (deets.genre) {
