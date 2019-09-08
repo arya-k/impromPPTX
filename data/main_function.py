@@ -226,6 +226,8 @@ def get_keyphrase(rawtext, OPTIMAL_LENGTH=2.9):
             )
         ):
             candidate = phrase
+    if candidate is None:
+        candidate = "title"
     return " ".join(map(str, candidate))
 
 
