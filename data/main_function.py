@@ -13,6 +13,7 @@ import json
 import spacy
 import fasttext
 import urllib.request
+from word2number import w2n
 from bs4 import BeautifulSoup
 from deepsegment import DeepSegment
 
@@ -25,8 +26,7 @@ nlp.add_pipe(merge_ents)
 nlp.add_pipe(merge_ncs)
 
 model = fasttext.load_model(
-    os.path.join(os.path.dirname(
-        os.path.realpath(__file__)), "model_1000000.ftz")
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), "model_1000000.ftz")
 )
 segmenter = DeepSegment("en")
 
@@ -154,7 +154,8 @@ class Summary:
         mostlysanitized = [
             " ".join(c for c in bullet.split(" ") if c) for bullet in kindasanitized
         ]
-        return [b.capitalize() for b in mostlysanitized]
+        almostcompletelysanitized = [x for x in mostlysanitized if x.count(" ") <= 10]
+        return [b.capitalize() for b in almostcompletelysanitized]
 
     def json(self):
         return {"genre": "summary", "content": self._summary}
@@ -163,8 +164,7 @@ class Summary:
 class Title:
     def __init__(self, rawtext):
         self.OPTIMAL_LENGTH = 2.9
-        self._title = get_keyphrase(
-            rawtext, OPTIMAL_LENGTH=self.OPTIMAL_LENGTH).title()
+        self._title = get_keyphrase(rawtext, OPTIMAL_LENGTH=self.OPTIMAL_LENGTH).title()
 
     def json(self):
         return {"genre": "title", "content": self._title}
@@ -173,6 +173,14 @@ class Title:
 class Graph:
     def json(self):
         return {"genre": "image", "content": "/graph/"}
+
+
+class BigPoint:
+    def __init__(self, bigpoint):
+        self._bigpoint = bigpoint
+
+    def json(self):
+        return {"genre": "bigpoint", content: self._bigpoint}
 
 
 def get_keyphrase(rawtext, OPTIMAL_LENGTH=2.9):
@@ -225,7 +233,19 @@ def gen_element(speech, slide_is_blank=False):
     proc_speech = ". ".join(segmenter.segment(proc_speech))
 
     if slide_is_blank:
-        return Title(proc_speech)
+        # try to see if you should make a number:
+        try:
+            my_num = w2n.word_to_num(
+                "".join(
+                    x for x in proc_speech if x.isalpha() or x.isdigit() or x.isspace()
+                )
+            )
+            assert my_num != 0  # don't match the word "point"
+            return BigPoint(
+                "{}{}".format(my_num, "%" if "percent" in proc_speech else "")
+            )
+        except Error:
+            return Title(proc_speech)
 
     # if it is a graph:
     if "correlat" in proc_speech or " graph" in proc_speech or "chart" in proc_speech:
