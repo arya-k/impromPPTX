@@ -1,5 +1,5 @@
-title_slide = true;
-title_title = false;
+big_slide = true;
+big_title = false;
 
 last_dec = 1;
 imgs_scaled = false;
@@ -12,7 +12,7 @@ flower = "https://images.pexels.com/photos/736230/pexels-photo-736230.jpeg?auto=
 boat = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQin6epPrshg5ou2oNsvzxQH3Ao8cPnjpYLDalvj8iPTlW7NHnm"
 
 function add_image(img_url) {
-    if (title_slide) return;
+    if (big_slide) return;
     if($(".p-body > .p-images").length == 0)
         $(".p-body").append('<div class="p-images"></div>');
     $(".p-body > .p-images").append("<img src=\"" + img_url + "\" />");
@@ -44,7 +44,7 @@ function correct_imgs() {
 }
 
 function add_bullet(text) {
-    if (title_slide) return;
+    if (big_slide) return;
     if($(".p-body > .p-text").length == 0){
         $(".p-body").prepend('<div class="p-text"><ul></ul></div>');
         // if($(".p-body > .p-images").length > 0){
@@ -56,14 +56,14 @@ function add_bullet(text) {
 }
 
 function new_slide(title){
-    if (title_slide && !title_title) {
+    if (big_slide && !big_title) {
         $(".p-title h1").html(title);
-        title_title = true;
-    } else if (title_slide && title_title) {
+        big_title = true;
+    } else if (big_slide && big_title) {
         $(".presentation").empty();
         $(".presentation").append("<div class=\"p-header\"><h1></h1></div>");
         $(".presentation").append("<div class=\"p-body\"></div>");
-        title_slide = false;
+        big_slide = false;
     }
     $(".p-body").empty();
     $(".p-header h1").html(title);
@@ -71,3 +71,11 @@ function new_slide(title){
     img_margin = original_img_marign;
     last_dec = 1;
 }
+
+function new_big_slide(title){
+    big_slide = true
+    big_title = true
+    $(".presentation").empty();
+    $(".presentation").append("<div class=\"p-title\"><h1 class=\"title-text\">" + title + "</h1></div>");
+    $(".presentation").append("<div class=\"p-accent-bar\"></div>");
+}   

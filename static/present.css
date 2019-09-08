@@ -58,7 +58,7 @@ h1 {
   animation: fadein 2s;
 }
 
-.title-text {
+.p-title > h1 {
   font-size: 100px;
   margin-bottom: 2%;
   margin-left: 5%;
