@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block css %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<style>
+    button {
+        -webkit-user-select: none;
+        /* Chrome all / Safari all */
+        -moz-user-select: none;
+        /* Firefox all */
+        -ms-user-select: none;
+        /* IE 10+ */
+        user-select: none;
+    }
+
+    .connected {
+        border: none;
+        animation: green-shadow-pulse 2s infinite;
+        text-transform: uppercase;
+        pointer-events: none;
+    }
+
+    .connected>.disconnected {
+        display: none;
+    }
+
+    .connected.red>.disconnected {
+        display: block;
+    }
+
+    .red {
+        background-color: #dc3545;
+        animation: red-shadow-pulse 2s infinite;
+    }
+
+    @keyframes green-shadow-pulse {
+        0% {
+            box-shadow: 0 0 0 0px rgba(0, 255, 0, 0.5);
+        }
+
+        100% {
+            box-shadow: 0 0 0 10px rgba(0, 255, 0, 0);
+        }
+    }
+
+    @keyframes red-shadow-pulse {
+        0% {
+            box-shadow: 0 0 0 0px rgba(255, 0, 0, 0.5);
+        }
+
+        100% {
+            box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+        }
+    }
+</style>
+{% endblock %}
+{% block bodyclass %}{% endblock %}
+{% block content %}
+<!-- <div class="mt-5">
+    Connected
+</div> -->
+<div class="fixed-top mt-5 text-center">
+    <button class="btn btn-success red d-flex connected mx-auto" type="button"><span
+            class="disconnected">dis</span>connected</button>
+</div>
+<div class="fixed-bottom mb-5 h-75">
+    <div class="row h-100">
+        <button class="jumbotron jumbotron bg-dark text-light text-center border shadow col mx-4" id="next_slide">
+            <div class="container">
+                <h1 class="display-4 ">Next Slide</h1>
+            </div>
+        </button>
+        <button class="jumbotron jumbotron bg-info text-white text-center border shadow col mx-4" id="next_element">
+            <div class="container">
+                <h1 class="display-4">Next Element</h1>
+            </div>
+        </button>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+        window.socket = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws/presentation/clicker/');
+        window.socket.onopen = function () {
+            $(".connected").removeClass("red");
+        }
+        window.socket.onclose = function () {
+            $(".connected").addClass("red");
+        }
+    })
+    $("#next_slide").bind('touchstart', (e) => {
+        $(this).removeClass("shadow");
+        window.socket.send(JSON.stringify({ page_type: 'clicker', mic_event: 'start_slide' }))
+    })
+    $("#next_slide").bind("touchend", (e) => {
+        $(this).addClass("shadow");
+        window.socket.send(JSON.stringify({ page_type: 'clicker', mic_event: 'end_slide' }))
+    })
+
+    $("#next_element").bind("touchstart", (e) => {
+        $(this).removeClass("shadow")
+        window.socket.send(JSON.stringify({ page_type: 'clicker', mic_event: 'start_element' }))
+    })
+    $("#next_element").bind("touchend", (e) => {
+        $(this).addClass("shadow")
+        window.socket.send(JSON.stringify({ page_type: 'clicker', mic_event: 'end_element' }))
+    })
+</script>
+{% endblock %}

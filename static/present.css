@@ -1,0 +1,142 @@
+* {
+    font-family: 'Roboto', sans-serif;
+}
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  background: black;
+}
+
+.connected {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgb(0, 255, 0);
+    border-radius: 50%;
+    height: 10px;
+    width: 10px;
+    animation: green-shadow-pulse 2s infinite;
+}
+
+.red {
+    background-color: rgb(255, 0, 0);
+    animation: red-shadow-pulse 2s infinite;
+}
+
+@keyframes green-shadow-pulse
+{
+     0% {
+          box-shadow: 0 0 0 0px rgba(0, 255, 0, 0.5);
+     }
+     100% {
+          box-shadow: 0 0 0 10px rgba(0, 255, 0, 0);
+     }
+}
+
+@keyframes red-shadow-pulse
+{
+     0% {
+          box-shadow: 0 0 0 0px rgba(255, 0, 0, 0.5);
+     }
+     100% {
+          box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+     }
+}
+
+
+h1 {
+  font-size: 55px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  margin-left: 5%;
+  padding-top: 10px;
+  animation: fadein 2s;
+}
+
+.p-title > h1 {
+  font-size: 100px;
+  margin-bottom: 2%;
+  margin-left: 5%;
+}
+
+.title-text {
+    font-size: 150px!important;
+    margin: 0 auto!important;
+}
+
+li {
+  font-size: 28px;
+  margin-bottom: 0px;
+  margin-top: 0px;
+  animation: fadein 1s;
+}
+
+img {
+  margin: 1%;
+  max-width: 75%;
+  max-height: 75%;
+  animation: fadein 1s;
+}
+
+@keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.presentation {
+  width: 80%;
+  height: 100%;
+  background: #dee0df;
+}
+
+.p-header {
+  height: 15%;
+  display: flex;
+  align-items: center;
+  background: #85b2c4;
+}
+
+.p-title {
+  height: 60%;
+  display: flex;
+  align-items: flex-end;
+  background: #85b2c4;
+}
+
+.p-accent-bar {
+  height: 40%;
+  background: #53879b;
+}
+
+.p-body {
+  display: flex;
+
+  padding-top: 3%;
+  padding-left: 3%;
+  padding-right: 3%;
+  padding-bottom: 3%;
+  height: 77%;
+}
+
+.p-text {
+  display: flex;
+  flex-basis: 50%;
+  flex-shrink: 0;
+  flex-direction: column;
+  flex-grow: 2;
+}
+
+.p-images {
+  display: flex;
+  flex-grow: 1;
+  flex-flow: row wrap;
+  align-content: flex-start;
+
+  max-width:100%;
+  max-height:100%;
+}

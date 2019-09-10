@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %} ImpromPPTX - Present {% endblock title %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'present.css' %}">
+{% endblock css %}
+{% block bodyclass %}{% endblock %}
+{% block content %}
+<div class="connected"></div>
+<div class="presentation">
+    <div class="p-title">
+        <h1></h1>
+    </div>
+    <div class="p-accent-bar"></div>
+</div>
+
+<script src="{% static 'present.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        window.socket = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws/presentation/presenter/');
+        window.socket.onopen = function (e) {
+            $(".connected").removeClass("red");
+        }
+        window.socket.onclose = function (e) {
+            $(".connected").addClass("red");
+        }
+        window.slide_recognition = new webkitSpeechRecognition();
+        window.slide_recognition.continuous = true;
+        window.slide_recognition.onresult = function (event) {
+            let text = '';
+            for (let result of event.results) {
+                text += result[0].transcript;
+            }
+            window.socket.send(JSON.stringify({ page_type: 'clicker', event: 'next_slide', text: text }))
+
+        }
+        window.element_recognition = new webkitSpeechRecognition();
+        window.element_recognition.continuous = true;
+        window.element_recognition.onresult = function (event) {
+            let text = '';
+            for (let result of event.results) {
+                text += result[0].transcript;
+            }
+            window.socket.send(JSON.stringify({ page_type: 'clicker', event: 'next_element', text: text }))
+        }
+        window.socket.onmessage = function (msg) {
+            let deets = JSON.parse(msg.data)
+            console.log(deets);
+            if (deets.update) {
+                switch (deets.update.genre) {
+                    case "title":
+                        new_slide(deets.update.content);
+                        break;
+                    case "image":
+                        add_image(deets.update.content + "?" + new Date().getTime());
+                        break;
+                    case "bigpoint":
+                        new_big_slide(deets.update.content);
+                        break;
+                    case "summary":
+                        for (let bullet of deets.update.content) {
+                            add_bullet(bullet);
+                        }
+                        break;
+                }
+            } else {
+                switch (deets.event) {
+                    case "start_slide":
+                        window.slide_recognition.start();
+                        break;
+                    case "end_slide":
+                        window.slide_recognition.stop();
+                        break;
+                    case "start_element":
+                        window.element_recognition.start();
+                        break;
+                    case "end_element":
+                        window.element_recognition.stop();
+                        break;
+                }
+            }
+
+        }
+    })
+</script>
+
+{% endblock content %}
+{% block js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FitText.js/1.2.0/jquery.fittext.js"></script>
+{% endblock %}
